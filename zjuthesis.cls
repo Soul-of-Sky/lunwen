@@ -436,12 +436,18 @@ Created: 2014.09.15 by Sky and Hamburger,  Modified by Kwen String at 2016.04.08
 						\rule{\titleulwidth@cover}{\ULthickness}\\*
 						\rule{\titleulwidth@cover}{\ULthickness}\\*
 						\rule{\titleulwidth@cover}{\ULthickness}}}
+				\else\ifdim\etitlelength<4\titleulwidth@cover
+					    \raisebox{139pt}[0pt][0pt]{\parbox[t][][t]{\titleulwidth@cover}{
+					    \rule{\titleulwidth@cover}{\ULthickness}\\*
+					    \rule{\titleulwidth@cover}{\ULthickness}\\*
+					    \rule{\titleulwidth@cover}{\ULthickness}\\*
+					    \rule{\titleulwidth@cover}{\ULthickness}}}
 				\fi\fi\fi
 			\end{minipage}}\\*
 		\end{tabular}
 
         %调节英文题目下端与申请人姓名之间的间距
-		\vskip 15mm
+		\vskip 25mm
 		\begin{tabular}{>{\zihao{4}\songti}l>{\zihao{4}\fangsong}l}
 			%申请人姓名: & \ZJUunderline[200pt]{\ZJU@author} \\[3mm]
 			% 由于本模板无法整齐排印生僻字（原因不明）

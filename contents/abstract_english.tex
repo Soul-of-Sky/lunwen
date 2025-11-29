@@ -3,23 +3,11 @@
 % 定义英文摘要和关键字
 
 \begin{eabstract}
-An abstract of a dissertation is a summary and extraction of research work
-and contributions. Included in an abstract should be description of research
-topic and research objective, brief introduction to methodology and research
-process, and summarization of conclusion and contributions of the
-research. An abstract should be characterized by independence and clarity and
-carry identical information with the dissertation. It should be such that the
-general idea and major contributions of the dissertation are conveyed without
-reading the dissertation.
+With the rapid development of artificial intelligence technology, edge computing, and lightweight cloud computing platforms, a large number of model inference, real-time control, and complex computing tasks are being deployed in resource-constrained heterogeneous environments. These environments are typically based on virtualization technology, hosting business logic through lightweight virtual machines or isolated runtime instances, enabling widespread application in scenarios such as cloud-edge collaboration, unmanned systems, industrial control, and distributed intelligence. In this context, Operating System (OS) snapshotting serves as a key technology for ensuring system consistency, supporting online migration, fault tolerance, and task reconstruction, primarily implemented as Virtual Machine (VM) state snapshots. However, traditional snapshot technologies matured under resource-abundant cloud server conditions. When deployed in resource-constrained environments characterized by limited computing power, memory constraints, restricted storage bandwidth, and energy sensitivity, classic mechanisms like Pre-copy and Post-copy face severe performance degradation: dirty page generation rates exceeding transmission rates lead to non-convergence; high-frequency VM Exits and page fault handling introduce extra latency; and massive background writing causes Flash write amplification and I/O blocking, further amplifying system jitter and the risk of real-time violations in AI inference scenarios.
 
-An abstract should be concise and to the point. It is a misunderstanding to
-make an abstract an outline of the dissertation and words ``the first
-chapter'', ``the second chapter'' and the like should be avoided in the
-abstract.
+To address these challenges, this study proposes an OS snapshot optimization framework based on Hotspot Perception and System Resource Feedback, specifically designed for the memory snapshot process in virtualized environments. This method utilizes hardware-assisted access bits to construct a lightweight double-bit aging model, capturing the spatio-temporal locality of VM memory access with minimal overhead to precisely identify hotspot areas. By defining a System Pressure Index (SPI), the system intuitively perceives CPU load, I/O queue depth, memory levels, and energy status, thereby adaptively adjusting the page selection scope during the stop-phase, the rhythm of background migration, and the batch processing strategy for incremental writes. Furthermore, addressing the characteristics of Flash storage media common in resource-constrained environments, this study designs mechanisms for write coalescing, fine-grained deduplication, and token-bucket-based I/O throttling to reduce write amplification, lower burst bandwidth occupation, and improve overall transmission efficiency.
 
-Key words are terms used in a dissertation for indexing, reflecting core
-information of the dissertation. An abstract may contain a maximum of 5 key
-words, with semi-colons used in between to separate one another.
+Validation results on a QEMU/KVM-based prototype system demonstrate that, while maintaining strong consistency of the VM state, this method significantly reduces interference with AI inference and real-time workloads during the snapshot process, shortens downtime, and decreases snapshot data volume and storage overhead. The research results provide an efficient and scalable snapshot optimization solution for building high-availability virtualization infrastructure oriented towards edge intelligence and resource-constrained environments.
 \end{eabstract}
 
-\ekeywords{\TeX, \LaTeX, CJK, template, thesis}
+\ekeywords{Operating System Snapshot, Virtualization Snapshot, Hotspot Perception, Resource-Constrained Environment}
