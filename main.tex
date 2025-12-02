@@ -1,6 +1,8 @@
 % !Mode:: "TeX:UTF-8"
 % !TEX builder = LATEXMK
 % !TEX program = xelatex
+
+
 \documentclass[master,oneside,AutoFakeBold,nocpsupervisor]{zjuthesis} % 如果你的论文不满80页，还是单面印刷吧
 
 
@@ -18,7 +20,7 @@
 \classification{TP311.5}    % 封面头使用
 \serialnumber{10335}        % 封面头使用
 \secretlevel{无}            % 封面头使用
-\studentnumber{21x51xxx}    % 封面头使用
+\studentnumber{22351067}    % 封面头使用
 
 %\supervisor{御坂美琴}       % 导师 封面使用
 \supervisor{赵新奎}
@@ -86,8 +88,12 @@
 % 正文排版开始 建议一章一文件 （好像无法嵌套 include） 
 \mainmatter
 \include{contents/intro} % 绪论
-\include{contents/whyla}
-\include{contents/elem}
+\include{contents/background}
+\include{contents/design}
+\include{contents/hotspot}
+\include{contents/strategy}
+\include{contents/flash}
+\include{contents/eval}
 \include{contents/sum}  % 总结和展望
 
 % 结尾部分排版
