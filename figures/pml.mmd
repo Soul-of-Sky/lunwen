@@ -1,0 +1,51 @@
+%%{init: { "theme": "base", "flowchart": { "defaultRenderer": "elk" } } }%%
+graph TB
+    %% --- 样式定义 ---
+    classDef guest fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000;
+    classDef trap fill:#ffcdd2,stroke:#c62828,stroke-width:2px,color:#000;
+    classDef kvm fill:#ffebee,stroke:#b71c1c,stroke-width:2px,color:#000;
+    classDef hw fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000;
+    classDef mem fill:#f5f5f5,stroke:#616161,stroke-width:2px,color:#000;
+
+    subgraph SW_Track [基于写保护的软件追踪]
+        direction TB
+        SW_Write(Guest 发起写入操作):::guest
+        Exception{触发 EPT Violation}:::trap
+        
+        subgraph Overhead [高昂开销路径]
+            VMExit[VM Exit: 暂停 vCPU <br> 上下文切换 / TLB 刷新]:::kvm
+            Handle[KVM 捕获异常 <br> 置位脏页位图 <br> 解除写保护]:::kvm
+            Resume[VM Resume: 恢复 vCPU]:::kvm
+        end
+        
+        SW_Mem[(物理内存写入)]:::mem
+
+        SW_Write --> Exception
+        Exception -- 陷入内核 --> VMExit
+        VMExit --> Handle
+        Handle --> Resume
+        Resume --> SW_Mem
+    end
+
+    subgraph HW_Track [硬件辅助追踪]
+        direction TB
+        HW_Write(Guest 发起写入操作):::guest
+        
+        subgraph Pipeline [硬件流水线处理]
+            HW_Logic[MMU / 硬件逻辑介入 <br> 自动置 Dirty Bit 或 写入 PML Log]:::hw
+            NoExit[无 VM Exit <br> vCPU 持续运行]:::hw
+        end
+        
+        HW_Mem[(物理内存写入)]:::mem
+
+        HW_Write -- 硬件原子操作 --> HW_Logic
+        HW_Logic -- 流水线并行 --> NoExit
+        NoExit --> HW_Mem
+        
+        %% 异步扫描逻辑
+        Hypervisor[Hypervisor <br> 异步轮询/批处理]:::guest
+        HW_Logic -. 周期性收集 .-> Hypervisor
+    end
+
+    %% --- 视觉对比强调 ---
+    style Overhead fill:#fff5f5,stroke:#d32f2f,stroke-width:2px,stroke-dasharray: 5 5

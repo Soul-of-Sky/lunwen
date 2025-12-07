@@ -1,0 +1,47 @@
+%%{init: { 
+  'theme': 'base', 
+  'gantt': {
+    'barHeight': 40,
+    'barGap': 5,
+    'fontSize': 20,
+    'sectionFontSize': 20
+  },
+  'themeVariables': { 
+    'primaryColor': '#a5d6a7',
+    'primaryTextColor': '#000000',
+    'primaryBorderColor': '#2e7d32',
+    
+    'doneBkgColor': '#a5d6a7',
+    'doneBorderColor': '#2e7d32',
+    'doneTextColor': '#000000',
+
+    'activeBkgColor': '#ffcc80',
+    'activeBorderColor': '#ef6c00',
+    'activeTextColor': '#000000',
+
+    'critBkgColor': '#ef9a9a', 
+    'critBorderColor': '#c62828', 
+    'critTextColor': '#000000'
+  }
+} }%%
+
+gantt
+dateFormat  X
+axisFormat  %s
+    
+    section 停止<br>并拷贝
+    正常运行           :done, sc_run, 0, 5s
+    停机拷贝  :crit, sc_stop, after sc_run, 10s
+    恢复运行           :done, after sc_stop, 20s
+
+    section 预拷贝
+    正常运行           :done, pre_run, 0, 5s
+    迭代预拷贝:active, pre_iter, after pre_run, 20s
+    停机(传剩余脏页)    :crit, pre_stop, after pre_iter, 5s
+    恢复运行           :done, after pre_stop, 5s
+
+    section 后拷贝
+    正常运行           :done, post_run, 0, 5s
+    停机               :crit, post_stop, after post_run, 0.5s
+    后台拷贝 + 写时复制 :active, post_fault, after post_stop, 12s
+    恢复运行           :done, after post_fault, 17.5s

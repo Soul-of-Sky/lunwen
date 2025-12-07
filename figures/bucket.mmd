@@ -1,0 +1,44 @@
+---
+config:
+  layout: dagre
+---
+flowchart LR
+ subgraph ControlPlane["控制平面：动态速率调节"]
+    direction LR
+        Formula["反馈计算函数"]
+        SPI(("SPI 实时指数"))
+        TokenGen(("令牌生成器"))
+  end
+ subgraph DataPlane["数据平面：快照 I/O 执行"]
+    direction TB
+        Request{"申请令牌"}
+        Thread["后台快照线程<br>准备写入数据"]
+        Bucket{"令牌桶<br>Capacity"}
+        IO_Action["执行 I/O 落盘<br>消耗对应令牌"]
+        Sleep["强制挂起 Sleep<br>让渡总线资源"]
+  end
+    SPI --> Formula
+    TokenGen -- 注入 --> Bucket
+    Thread --> Request
+    Request -- 尝试获取 --> Bucket
+    Bucket -- 令牌充足 --> IO_Action
+    Bucket -- 令牌不足 --> Sleep
+    Sleep -. 等待唤醒 .-> Request
+    IO_Action -. 处理下一块 .-> Thread
+    SPI -. 负相关反馈 .-> TokenGen
+    Formula --> TokenGen
+
+     Formula:::control
+     SPI:::input
+     TokenGen:::control
+     Request:::process
+     Thread:::process
+     Bucket:::bucket
+     IO_Action:::action
+     Sleep:::wait
+    classDef control fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:#333
+    classDef bucket fill:#fff2cc,stroke:#d6b656,stroke-width:2px,color:#333
+    classDef process fill:#f5f5f5,stroke:#666,stroke-width:2px,color:#333
+    classDef action fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:#333
+    classDef wait fill:#f8cecc,stroke:#b85450,stroke-width:2px,color:#333
+    classDef input fill:#e1d5e7,stroke:#9673a6,stroke-width:2px,color:#333

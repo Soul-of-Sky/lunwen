@@ -1,0 +1,80 @@
+---
+config:
+  layout: elk
+---
+flowchart TB
+ subgraph subGraph0["老化与更新"]
+    direction LR
+        Old_S["页面旧状态 S_old<br>8 bit"]
+        H_Bit["硬件访问位 H_bit<br>PTE 读取"]
+        Aging_Shift[("S_old &lt;&lt; 1")]
+        New_LSB["\| H_bit<br>注入最新状态"]
+        Masking["&amp; M_N<br>N位截断"]
+        S_New["页面新状态 S_new<br>长度 N 的滑动窗口"]
+  end
+ subgraph Dynamic_N_Adjustment["动态调节热点难度"]
+        R_Hot["统计极热页面比例 R_hot"]
+        Hot_Decision{"R_hot 是否在合理区间?"}
+        N_Up["N = N + 1<br>增加监测难度"]
+        N_Down["N = N - 1<br>降低监测难度"]
+        N_Stable["保持 N 不变"]
+        New_Mask["更新掩码 M_N"]
+  end
+ subgraph Strategy_Mapping["策略映射"]
+    direction LR
+        S_New_Map("S_new")
+        Strategy_Hot["极热页面<br>停机阶段保存/写合并"]
+        Strategy_Warm["温热页面<br>启用 COW 机制"]
+        Strategy_Cold["冷寂页面<br>后台低优先级传输"]
+  end
+ subgraph s1[" "]
+    direction TB
+        Start["开始 每一扫描周期"]
+        subGraph0
+        Dynamic_N_Adjustment
+        Strategy_Mapping
+        End["迭代至下一周期"]
+  end
+    Old_S --> Aging_Shift
+    Aging_Shift --> New_LSB
+    H_Bit --> New_LSB
+    New_LSB --> Masking
+    Masking --> S_New & Strategy_Mapping
+    R_Hot --> Hot_Decision
+    Hot_Decision -- R_hot > 5% --> N_Up
+    Hot_Decision -- "R_hot &lt; 0.1%" --> N_Down
+    Hot_Decision -- "0.1% &lt;= R_hot &lt;= 5%" --> N_Stable
+    N_Up --> New_Mask
+    N_Down --> New_Mask
+    N_Stable --> New_Mask
+    S_New --> R_Hot
+    S_New_Map -- "S_new = 2^N - 1" --> Strategy_Hot
+    S_New_Map -- "0 &lt; S_new &lt; 2^N - 1" --> Strategy_Warm
+    S_New_Map -- "S_new = 0" --> Strategy_Cold
+    New_Mask --> End
+    Strategy_Cold --> End
+    Strategy_Warm --> End
+    Strategy_Hot --> End
+    Start --> subGraph0
+
+     Old_S:::state
+     H_Bit:::state
+     Aging_Shift:::step
+     New_LSB:::step
+     Masking:::step
+     S_New:::state
+     R_Hot:::step
+     Hot_Decision:::decision
+     N_Up:::update
+     N_Down:::update
+     N_Stable:::update
+     New_Mask:::update
+     Strategy_Hot:::decision
+     Strategy_Warm:::decision
+     Strategy_Cold:::decision
+     Start:::step
+     End:::step
+    classDef step fill:#b3e5fc,stroke:#01579b,stroke-width:2px
+    classDef decision fill:#ffcdd2,stroke:#c62828,stroke-width:2px
+    classDef state fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    classDef update fill:#fff9c4,stroke:#fbc02d,stroke-width:2px

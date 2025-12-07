@@ -1,0 +1,33 @@
+---
+config:
+  layout: dagre
+---
+flowchart TB
+ subgraph s1["预拷贝阶段"]
+        A1["热度感知算法运行"]
+        A2["持续拷贝页面"]
+        A3["热点页面工作集是否稳定"]
+  end
+ subgraph s2["停止并拷贝阶段"]
+        B4["停止并拷贝极热页<br>短时原子化集中传输"]
+        B5["保存CPU状态<br>设置剩余页面写保护"]
+  end
+ subgraph s3["后拷贝阶段"]
+        C6["温热页优先异步传输<br>写时复制"]
+  end
+    A1 --> A2
+    A2 --> A3
+    A3 -. 否 .-> A1
+    A3 -- 是 --> B4 & B5
+    B4 --> C6
+    B5 --> C6
+
+     A1:::pre_copy
+     A2:::pre_copy
+     A3:::pre_copy
+     B4:::stop_copy
+     B5:::stop_copy
+     C6:::post_copy
+    classDef pre_copy fill:#ffe6cc,stroke:#e67300,stroke-width:2px
+    classDef stop_copy fill:#cfe8ff,stroke:#2a7fd1,stroke-width:2px
+    classDef post_copy fill:#d7f0d9,stroke:#2c8a3a,stroke-width:2px

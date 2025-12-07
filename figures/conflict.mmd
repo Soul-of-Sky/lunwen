@@ -1,0 +1,50 @@
+%%{init: { "theme": "base", "flowchart": { "defaultRenderer": "elk" } } }%%
+graph TB
+    %% --- 样式定义 ---
+    classDef constraint fill:#f5f5f5,stroke:#616161,stroke-width:2px,color:#000;
+    classDef mech fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000;
+    classDef conflict fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,color:#000;
+    classDef fail fill:#ffcdd2,stroke:#c62828,stroke-width:2px,color:#000;
+
+    %% --- 顶部：边缘环境硬约束 ---
+    subgraph Edge_Env [边缘节点资源硬约束]
+        direction TB
+        Constraint_IO[存储 I/O 带宽受限 ]:::constraint
+        Constraint_CPU[计算资源受限 ]:::constraint
+    end
+
+    %% --- 左侧：预拷贝失效路径 ---
+    subgraph PreCopy_Path [预拷贝机制失效]
+        direction TB
+        Pre_Start(开启预拷贝):::mech
+        Write_Load(写密集型负载 <br> 脏页产生速率 > 传输速率):::conflict
+        
+        Congestion{I/O 通道拥塞}:::conflict
+        Non_Converge[迭代不收敛 <br> 强制退化为停止并拷贝]:::fail
+        
+        Pre_Start --> Write_Load
+        Write_Load -- 挤占带宽 --> Congestion
+        Congestion --> Non_Converge
+    end
+
+    %% --- 右侧：后拷贝失效路径 ---
+    subgraph PostCopy_Path [后拷贝机制失效]
+        direction TB
+        Post_Start(开启后拷贝):::mech
+        Page_Faults(密集缺页异常 <br> VM Exit):::conflict
+        
+        Contention{CPU 资源争抢 }:::conflict
+        Jitter[严重业务抖动 <br> ]:::fail
+
+        Post_Start --> Page_Faults
+        Page_Faults -- 消耗 CPU --> Contention
+        Contention --> Jitter
+    end
+
+    %% --- 跨层级连接：展示资源瓶颈 ---
+    Constraint_IO ==>|限制传输上限| Congestion
+    Constraint_CPU ==>|限制处理能力| Contention
+
+    %% --- 视觉布局调整 ---
+    %% 确保左右分开
+    %% PreCopy_Path ~~~ PostCopy_Path

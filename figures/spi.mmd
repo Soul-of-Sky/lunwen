@@ -1,0 +1,34 @@
+---
+config:
+  layout: elk
+---
+flowchart TB
+ subgraph High["高压模式：最小化干扰"]
+    direction TB
+        H_Action["抬高热度阈值<br>仅传极热页<br>暂停后台 I/O"]
+  end
+ subgraph Standard["标准模式：均衡调度"]
+    direction TB
+        S_Action["令牌桶流控<br>默认热度阈值<br>平稳传输冷页"]
+  end
+ subgraph Low["低压模式：激进拷贝"]
+    direction TB
+        L_Action["降低热度阈值<br>解除带宽限制<br>全速刷写"]
+  end
+    Input(["SPI 实时监测"]) --> Decision{"迟滞比较决策"}
+    Decision -- "SPI > 0.8" --> High
+    Decision -- "0.3 &lt; SPI &lt; 0.8" --> Standard
+    Decision -- "SPI &lt; 0.3" --> Low
+
+     H_Action:::highMode
+     S_Action:::stdMode
+     L_Action:::lowMode
+     Input:::logicNode
+     Decision:::logicNode
+    classDef highMode fill:#f8cecc,stroke:#b85450,stroke-width:2px,color:#333
+    classDef stdMode fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:#333
+    classDef lowMode fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:#333
+    classDef logicNode fill:#f5f5f5,stroke:#666,stroke-width:2px,stroke-dasharray: 5 5,color:#333
+    classDef invisible fill:none,stroke:none
+    style Input stroke-width:2px,stroke-dasharray: 0
+    style Decision stroke-width:2px,stroke-dasharray: 0

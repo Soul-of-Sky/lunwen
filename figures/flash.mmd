@@ -1,0 +1,36 @@
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+graph LR
+    %% --- 样式定义 ---
+    classDef logical fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000;
+    classDef ftl fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,color:#000;
+    classDef valid fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000;
+    classDef invalid fill:#ffcdd2,stroke:#c62828,stroke-width:2px,color:#000;
+    classDef empty fill:#ffffff,stroke:#bdbdbd,stroke-width:2px,stroke-dasharray: 5 5,color:#757575;
+
+    subgraph Host [逻辑视图]
+        LBA[逻辑页 LBA: A]:::logical
+    end
+
+    subgraph Controller [闪存转换层 FTL]
+        MapTable[映射表更新 <br> LBA A 指向 P_new]:::ftl
+    end
+
+    subgraph Physical [NAND Flash 物理块]
+        direction TB
+        %% 为了展示物理位置的更替，将它们放在同一个块内
+        P_Old[物理页 P_old <br> 旧数据: 无效]:::invalid
+        P_New[物理页 P_new <br> 新数据: 写入]:::valid
+        P_Free[物理页 P_free <br> 空白页]:::empty
+    end
+
+    %% --- 流程线条 ---
+    %% 1. 主机请求修改
+    LBA -- 1. 修改请求 --> MapTable
+    
+    %% 2. FTL 执行异地更新
+    MapTable -- 2. 写入新物理位置 --> P_New
+    
+    %% 3. 旧数据失效 (虚线表示状态变更而非数据流)
+    MapTable -- 3. 标记为无效/垃圾 --> P_Old
+
+    %% 辅助说明：由于不能原地覆盖，必须重定向

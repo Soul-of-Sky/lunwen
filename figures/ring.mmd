@@ -1,0 +1,47 @@
+---
+config:
+  layout: dagre
+---
+flowchart TB
+ subgraph LogicalMerge["阶段一：内存逻辑覆写"]
+    direction LR
+        Index{"Hash索引查找"}
+        Hit["极热页命中<br>检测到 P1 已存在"]
+        Overwrite["原地覆写 Update<br>V3 覆盖 V2 覆盖 V1"]
+        Discard("中间态 V1, V2<br>被过滤丢弃")
+        Miss["新页分配<br>写入 P2"]
+        Buffer["环形缓冲区<br>仅驻留最终态: P1_v3, P2"]
+  end
+ subgraph PhysicalMerge["阶段二：物理落盘合并"]
+    direction LR
+        Trigger(("阈值触发<br>空间80% / 时间超时"))
+        Sort["LBA 地址排序<br>随机写 -&gt; 顺序流"]
+        BatchWrite["Flash 物理层<br>大块顺序写入"]
+  end
+    Index -- 存在 --> Hit
+    Hit --> Overwrite
+    Overwrite -.-> Discard
+    Overwrite --> Buffer
+    Index -- 不存在 --> Miss
+    Miss --> Buffer
+    Trigger --> Sort
+    Sort --> BatchWrite
+    Input("业务随机写入流<br>时间序: P1_v1 -&gt; P2 -&gt; P1_v2 -&gt; P1_v3") --> LogicalMerge
+    LogicalMerge --> PhysicalMerge
+
+     Index:::memory
+     Hit:::memory
+     Overwrite:::memory
+     Discard:::discard
+     Miss:::memory
+     Buffer:::memory
+     Trigger:::trigger
+     Sort:::flash
+     BatchWrite:::flash
+     Input:::process
+    classDef process fill:#f5f5f5,stroke:#666,stroke-width:2px,color:#333
+    classDef memory fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:#333
+    classDef flash fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:#333
+    classDef discard fill:#f8cecc,stroke:#b85450,stroke-width:2px,stroke-dasharray: 5 5,color:#b85450
+    classDef trigger fill:#fff2cc,stroke:#d6b656,stroke-width:2px,color:#333
+    style Discard stroke-width:2px

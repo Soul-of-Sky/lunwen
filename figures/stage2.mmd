@@ -1,0 +1,34 @@
+graph TB
+    %% 样式定义
+    classDef addr fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000;
+    classDef table fill:#ffebee,stroke:#b71c1c,stroke-width:2px,color:#000;
+    classDef hw fill:#eeeeee,stroke:#616161,stroke-width:2px,color:#000;
+    classDef final fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000;
+
+    %% 客户机环境大方块
+    subgraph Guest_Context [客户机环境]
+        direction LR
+        GVA[客户机虚拟地址 GVA]:::addr
+        GuestPT[阶段1: 客户机页表]:::table
+        GVA -- 软件映射 --> GuestPT
+    end
+
+    %% 硬件辅助虚拟化层大方块
+    subgraph Hypervisor_Hardware [硬件辅助虚拟化层]
+        direction LR
+        GPA[客户机物理地址 GPA]:::addr
+        EPT[扩展页表 EPT/Stage-2]:::table
+        DirtyBit[硬件脏标记与访问位]:::hw
+        HPA[宿主机物理地址 HPA]:::final
+
+        %% 水平箭头主路径
+        GPA -- 硬件遍历 --> EPT
+        EPT -- 最终映射 --> HPA
+
+        %% 脏标记虚线箭头
+        EPT -. 写入触发更新 .-> DirtyBit
+        DirtyBit -. 辅助判断 .-> HPA
+    end
+
+    %% 外部箭头：从整个客户机环境指向整个硬件层
+    Guest_Context --> Hypervisor_Hardware

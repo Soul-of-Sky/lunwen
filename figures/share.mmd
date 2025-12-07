@@ -1,0 +1,40 @@
+---
+config:
+  layout: dagre
+---
+flowchart TB
+ subgraph Host_OS_KVM["内核态KVM"]
+    direction TB
+        KVM_Mod["KVM 内核模块"]
+        Kernel_Thread["扫描线程<br>周期性遍历页表"]
+  end
+ subgraph User_Space_QEMU["用户态QEMU"]
+    direction TB
+        QEMU_Proc["QEMU 用户态进程"]
+        Decision_Thread["快照决策线程<br>直接读取热度"]
+  end
+ subgraph Memory_Access["内存访问"]
+        Mem_Map["Linux mmap 机制"]
+        Hot_Bitmap["热度位图<br>维护在 kvm_memory_slot"]
+  end
+    KVM_Mod --> Kernel_Thread
+    QEMU_Proc --> Decision_Thread
+    Kernel_Thread -- "1. 更新热度位图" --> Hot_Bitmap
+    Hot_Bitmap -- "2. mmap 映射" --> Mem_Map
+    Mem_Map -- "3. 零拷贝" --> Decision_Thread
+    Kernel_Thread -. 传统开销 .-> System_Call["传统方式: ioctl"]
+    System_Call -. 传统获取 .-> Decision_Thread
+    Decision_Thread -- 通过共享内存获取 --> Hot_Bitmap
+
+     KVM_Mod:::kernel
+     Kernel_Thread:::kernel
+     QEMU_Proc:::user
+     Decision_Thread:::user
+     Mem_Map:::data
+     Hot_Bitmap:::memory
+     System_Call:::obsolete
+    classDef kernel fill:#ffebee,stroke:#b71c1c,stroke-width:2px,color:#000
+    classDef user fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000
+    classDef memory fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    classDef data fill:#ffcdd2,stroke:#c62828,stroke-width:2px,color:#000
+    classDef obsolete fill:#f5f5f5,stroke:#9e9e9e,color:#757575

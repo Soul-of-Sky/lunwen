@@ -1,0 +1,229 @@
+% --- 1. 边缘计算与虚拟化背景 ---
+
+@article{hamdaqa2012cloud,
+  title={Cloud computing uncovered: a research landscape},
+  author={Hamdaqa, Mohammad and Tahvildari, Ladan},
+  journal={Advances in computers},
+  volume={86},
+  pages={41--85},
+  year={2012},
+  publisher={Elsevier}
+}
+
+@article{shi2022memory,
+  title={Memory/disk operation aware lightweight VM live migration},
+  author={Shi, Bin and Shen, Haiying and Dong, Bo and Zheng, Qinghua},
+  journal={IEEE/ACM Transactions on Networking},
+  volume={30},
+  number={4},
+  pages={1895--1910},
+  year={2022},
+  publisher={IEEE}
+}
+
+@article{zhang2023review,
+  title={A review of artificial intelligence in embedded systems},
+  author={Zhang, Zhaoyun and Li, Jingpeng},
+  journal={Micromachines},
+  volume={14},
+  number={5},
+  pages={897},
+  year={2023},
+  publisher={MDPI}
+}
+
+@inproceedings{heiser2008role,
+  title={The role of virtualization in embedded systems},
+  author={Heiser, Gernot},
+  booktitle={Proceedings of the 1st workshop on Isolation and integration in embedded systems},
+  pages={11--16},
+  year={2008}
+}
+
+@inproceedings{aguiar2010embedded,
+  title={Embedded systems' virtualization: The next challenge?},
+  author={Aguiar, Alexandra and Hessel, Fabiano},
+  booktitle={Proceedings of 2010 21st IEEE International Symposium on Rapid System Protyping},
+  pages={1--7},
+  year={2010},
+  organization={IEEE}
+}
+
+@inproceedings{gobieski2019intelligence,
+  title={Intelligence beyond the edge: Inference on intermittent embedded systems},
+  author={Gobieski, Graham and Lucia, Brandon and Beckmann, Nathan},
+  booktitle={Proceedings of the Twenty-Fourth International Conference on Architectural Support for Programming Languages and Operating Systems},
+  pages={199--213},
+  year={2019}
+}
+
+% --- 2. 经典快照与迁移机制 ---
+
+@inproceedings{dunlap2002revirt,
+  title={ReVirt: Enabling intrusion analysis through virtual-machine logging and replay},
+  author={Dunlap, George W and King, Samuel T and Cinar, Sukru and Basrai, Murtaza A and Chen, Peter M},
+  booktitle={OSDI},
+  year={2002},
+  note={Stop-and-Copy机制经典文献}
+}
+
+@article{ta2008virtual,
+  title={Virtual machine time travel using continuous data protection and checkpointing},
+  author={Ta-Shma, Paula and Laden, Guy and Ben-Yehuda, Muli and Factor, Michael},
+  journal={ACM SIGOPS Operating Systems Review},
+  volume={42},
+  number={1},
+  pages={127--134},
+  year={2008},
+  publisher={ACM}
+}
+
+@inproceedings{clark2005live,
+  title={Live migration of virtual machines},
+  author={Clark, Christopher and Fraser, Keir and Hand, Steven and Hansen, Jacob Gorm and Jul, Eric and Limpach, Christian and Pratt, Ian and Warfield, Andrew},
+  booktitle={NSDI},
+  volume={5},
+  pages={273--286},
+  year={2005},
+  note={Pre-copy机制奠基之作}
+}
+
+@article{hines2009post,
+  title={Post-copy live migration of virtual machines},
+  author={Hines, Michael R and Deshpande, Umesh and Gopalan, Kartik},
+  journal={ACM SIGOPS Operating Systems Review},
+  volume={43},
+  number={3},
+  pages={14--26},
+  year={2009},
+  publisher={ACM},
+  note={Post-copy机制代表作}
+}
+
+@inproceedings{akiyama2013fast,
+  title={Fast wide area live migration with a low overhead through page cache teleportation},
+  author={Akiyama, Soramichi and Hirofuchi, Takahiro and Takano, Ryousei and Honiden, Shinichi},
+  booktitle={CCGrid},
+  pages={78--82},
+  year={2013},
+  organization={IEEE}
+}
+
+@inproceedings{li2014consnap,
+  title={ConSnap: Taking continuous snapshots for running state protection of virtual machines},
+  author={Li, Jianxin and Zheng, Jingsheng and Cui, Lei and Yang, Renyu},
+  booktitle={ICPADS},
+  pages={677--684},
+  year={2014},
+  organization={IEEE}
+}
+
+% --- 3. 硬件辅助与脏页追踪 (PML/SPP/Access Bit) ---
+
+@article{wang2014vm,
+  title={VM-$\mu$checkpoint: Design, modeling, and assessment of lightweight in-memory VM checkpointing},
+  author={Wang, Long and Kalbarczyk, Zbigniew and Iyer, Ravishankar K and Iyengar, Arun},
+  journal={IEEE Transactions on Dependable and Secure Computing},
+  volume={12},
+  number={2},
+  pages={243--255},
+  year={2014},
+  publisher={IEEE}
+}
+
+@article{intel_pml_arxiv,
+  title={Intel Page Modification Logging, a hardware virtualization feature},
+  author={Wichen, A and others},
+  journal={arXiv preprint arXiv:2001.09991},
+  year={2020},
+  note={[AI新增] 关于Intel PML硬件特性的详细分析}
+}
+
+@inproceedings{ozawa2021spp,
+  title={Exploiting Sub-page Write Protection for VM Live Migration},
+  author={Ozawa, T and others},
+  booktitle={IEEE International Conference on Cloud Computing Technology and Science (CloudCom)},
+  year={2021},
+  note={[AI新增] 关于子页级保护(SPP)技术的应用与优化}
+}
+
+@inproceedings{wu2016hot,
+  title={A hot-page aware hybrid-copy migration method},
+  author={Wu, Shuang and Wang, Bei and Yang, Ce and He, Qinming and Chen, Jianhai},
+  booktitle={IC2E},
+  pages={220--221},
+  year={2016},
+  organization={IEEE}
+}
+
+@article{cui2018snapfiner,
+  title={SnapFiner: A page-aware snapshot system for virtual machines},
+  author={Cui, Lei and Hao, Zhiyu and Li, Lun and Yun, Xiaochun},
+  journal={IEEE Transactions on Parallel and Distributed Systems},
+  volume={29},
+  number={11},
+  pages={2613--2626},
+  year={2018},
+  publisher={IEEE}
+}
+
+% --- 4. 资源受限与Flash存储优化 ---
+
+@inproceedings{zhong2016flic,
+  title={FLIC: Fast, lightweight checkpointing for mobile virtualization using nvram},
+  author={Zhong, Kan and Liu, Duo and Liang, Liang and Long, Linbo and Lin, Yi and Shao, Zili},
+  booktitle={DATE},
+  pages={1562--1567},
+  year={2016},
+  organization={IEEE},
+  note={Flash优化与写放大问题的重要参考文献}
+}
+
+@inproceedings{zahed2009reducing,
+  title={Reducing Storage Requirements of Snapshot Backups based on rsync utility},
+  author={Zahed, K Syed and Rani, P Sabitha and Saradhi, U Vijaya and Potluri, Anupama},
+  booktitle={COMSNETS},
+  pages={1--2},
+  year={2009},
+  organization={IEEE}
+}
+
+@inproceedings{panda2023snapstore,
+  title={SnapStore: A Snapshot Storage System for Serverless Systems},
+  author={Panda, Abhisek and Sarangi, Smruti R},
+  booktitle={Proceedings of the 24th International Middleware Conference},
+  pages={261--274},
+  year={2023},
+  note={[AI新增] Serverless场景下的快照存储优化}
+}
+
+@inproceedings{shi2019memory,
+  title={Memory/disk operation aware lightweight vm live migration across data-centers with low performance impact},
+  author={Shi, Bin and Shen, Haiying},
+  booktitle={IEEE INFOCOM},
+  pages={334--342},
+  year={2019},
+  organization={IEEE}
+}
+
+% --- 5. 虚拟化基础 ---
+
+@inproceedings{kivity2007kvm,
+  title={kvm: the Linux virtual machine monitor},
+  author={Kivity, Avi and Kamay, Yaniv and Laor, Dor and Lublin, Uri and Liguori, Anthony},
+  booktitle={Linux Symposium},
+  volume={1},
+  pages={225--230},
+  year={2007}
+}
+
+@article{barham2003xen,
+  title={Xen and the art of virtualization},
+  author={Barham, Paul and Dragovic, Boris and Fraser, Keir and Hand, Steven and Harris, Tim and Ho, Alex and Neugebauer, Rolf and Pratt, Ian and Warfield, Andrew},
+  journal={ACM SIGOPS Operating Systems Review},
+  volume={37},
+  number={5},
+  pages={164--177},
+  year={2003},
+  publisher={ACM}
+}

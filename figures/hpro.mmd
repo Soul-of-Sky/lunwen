@@ -1,0 +1,47 @@
+graph TB
+    classDef guest fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000;
+    classDef kvm fill:#ffebee,stroke:#b71c1c,stroke-width:2px,color:#000;
+    classDef hw fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000;
+
+    subgraph HPRO 系统架构
+        direction TB
+
+        %% 垂直第一层: 内核监控层 (kvm color)
+        subgraph 内核监控层
+            direction LR
+            KVM_Host_OS[**宿主机内核**<br>状态感知]:::kvm
+            LMM{轻量级内存监控<br>访问位追踪}:::kvm
+            SHM[共享内存机制<br>实时热度位图]:::kvm
+            
+            KVM_Host_OS --> LMM --> SHM
+            
+        end
+
+        %% 垂直第二层: 策略决策层 (guest color)
+        subgraph 策略决策层
+            direction LR
+            User_Space[**用户空间**<br>控制与调度核心]:::guest
+            AAA[自适应老化算法<br>冷热页划分]:::guest
+            SPI[系统压力指数 SPI<br>资源紧张度化]:::guest
+            FSM{自适应状态机<br>模式切换指令}:::guest
+            DTE[基于热度的分级传输<br>基于SPI的快照策略]:::guest
+            
+            User_Space --> AAA --> SPI --> FSM --> DTE
+            
+        end
+
+        %% 垂直第三层: 执行优化层 (hw color) - 仅保留Flash优化
+        subgraph 执行优化层
+            direction LR
+            Data_Path[**数据持久化**<br>I/O 执行与优化]:::hw
+            WM[写合并与去重<br>存储介质优化]:::hw
+            TBF[令牌桶流控<br>I/O 带宽约束]:::hw
+
+            Data_Path --> WM --> TBF
+        end
+
+        %% 仅保留层级关系的垂直连接
+        内核监控层 --> 策略决策层
+        策略决策层 --> 执行优化层
+        
+    end

@@ -1,0 +1,56 @@
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+graph TD
+    %% 样式定义
+    classDef userLayer fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000;
+    classDef kernelLayer fill:#ffebee,stroke:#b71c1c,stroke-width:2px,color:#000;
+    classDef hwLayer fill:#eeeeee,stroke:#616161,stroke-width:2px,color:#000;
+    classDef guestLayer fill:#fff3e0,stroke:#e65100,stroke-width:2px,stroke-dasharray: 5 5,color:#000;
+    classDef component fill:#ffffff,stroke:#333,stroke-width:1px,color:#000;
+
+    subgraph UserSpace [用户态层]
+        subgraph QEMU [QEMU进程]
+            subgraph QEMU_Modules [关键功能模块]
+                Net[虚拟网络]:::component
+                Block[虚拟块设备]:::component
+                PCI[PCI总线模型]:::component
+                GPU[图形输出]:::component
+                BIOS[BIOS启动]:::component
+            end
+            QEMU_Mgr[系统管理与控制]:::component
+        end
+    end
+
+    subgraph KernelSpace [内核态层]
+        subgraph KVM [KVM内核模块]
+            subgraph KVM_Core [核心功能]
+                CPUVirt[CPU虚拟化]:::component
+                MMU[内存地址翻译]:::component
+                Trap[异常陷入处理]:::component
+            end
+        end
+    end
+
+    subgraph Hardware [物理硬件层]
+        PHY_CPU[物理CPU]:::component
+        PHY_Mem[物理内存]:::component
+    end
+
+    subgraph Guest [客户机]
+        GuestOS[客户机操作系统]:::component
+    end
+
+    %% 交互连线
+    GuestOS -- 指令直接执行 --> PHY_CPU
+    GuestOS -- IO操作与陷入 --> Trap
+    
+    Trap -- 转发IO请求 --> QEMU_Modules
+    QEMU_Modules -- 模拟完成返回 --> Trap
+    
+    KVM_Core -. 支持硬件辅助虚拟化 .-> PHY_CPU
+    
+    %% 应用样式
+    class UserSpace userLayer;
+    class KernelSpace kernelLayer;
+    class Hardware hwLayer;
+    class Guest guestLayer;
+    class QEMU,KVM component;
