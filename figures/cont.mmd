@@ -6,10 +6,10 @@ flowchart LR
     Start(("脏页产生")) --> Buffer["增量缓冲区<br>持续聚合"]
     Buffer --> CheckCap{"规则一<br>容量超限?"}
     CheckCap -- 是: 写入过快 --> Act_High["立即落盘"]
-    Act_High --> Adjust_High["策略趋向懒惰<br>批大小翻倍"]
+    Act_High --> Adjust_High["策略趋向懒惰<br>批处理粒度翻倍"]
     CheckCap -- 否 --> CheckTime{"规则二<br>时间超时?"}
     CheckTime -- 是: 等待过久 --> Act_Low["强制落盘"]
-    Act_Low --> Adjust_Low["策略趋向实时<br>批大小减半"]
+    Act_Low --> Adjust_Low["策略趋向实时<br>批处理粒度减半"]
     CheckTime -- 否: 继续聚合 --> Buffer
     Adjust_High -.-> Buffer
     Adjust_Low -.-> Buffer
