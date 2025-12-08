@@ -7,7 +7,7 @@
 
 \section{内存写入的时空局部性特征分析}
 
-为了构建高效的热点感知算法，首先需要在真实的边缘计算与嵌入式虚拟化环境中，对典型工作负载的内存写入行为进行系统性的定性和定量分析。本研究选取了6种具有代表性的异构应用，包括空闲任务（Idle）、数据库读写（SQLite）、缓存系统（Memcached）、计算机视觉处理库（OpenCV）、实时目标检测框架（YOLO）以及轻量级大语言模型推理场景（ TinyLlama）。通过对这些工作负载在快照预拷贝阶段的页脏化行为进行长周期追踪，可以清晰地观察到边缘虚拟化环境中普遍存在的三个关键特征：冷热分布高度偏斜、热点区域漂移迅速以及负载规模呈现强烈的波动性。
+为了构建高效的热点感知算法，首先需要在真实的边缘计算与嵌入式虚拟化环境中，对典型工作负载的内存写入行为进行系统性的定性和定量分析。本研究选取了6种具有代表性的异构应用，包括空闲任务、数据库读写（SQLite）、数据压缩（Memcached）、计算机视觉处理库（OpenCV）、实时目标检测框架（YOLO）以及轻量级大语言模型推理场景（ TinyLlama）。通过对这些工作负载在快照预拷贝阶段的页脏化行为进行长周期追踪，可以清晰地观察到边缘虚拟化环境中普遍存在的三个关键特征：冷热分布高度偏斜、热点区域漂移迅速以及负载规模呈现强烈的波动性。
 
 通过对这些工作负载在预拷贝阶段产生的脏页进行统计与可视化分析，我们发现资源受限虚拟化平台中的内存写入模式远非均匀随机，而是呈现出显著的、跨负载一致的时空局部性特征。这些特征不仅揭示了内存写入行为的潜在规律，也为后续热点识别机制提供了关键的理论支撑。本节将从以下四个方面展开论述。
 
@@ -15,7 +15,7 @@
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\linewidth]{figures/hello.png}
+    \includegraphics[width=0.95\linewidth]{figures/py/zipf.pdf}
     \caption{典型负载内存写入频度分布}
     \label{fig:zipf}
 \end{figure}
@@ -28,8 +28,8 @@
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\linewidth]{figures/hello.png}
-    \caption{典型负载内存写入空间分布}
+    \includegraphics[width=0.95\linewidth]{figures/py/drift.pdf}
+    \caption{典型负载内存写入时空分布}
     \label{fig:drift}
 \end{figure}
 

@@ -162,9 +162,7 @@
 
 \subsubsection{细粒度提取的最佳粒度维度分析}
 
-在全页去重的基础上，为了进一步挖掘页内微小修改带来的压缩潜力，$\text{HPRO}$ 引入了细粒度提取技术。正如第 6 章所述，更细的提取粒度能够剥离页面中未发生变化的“干净”数据块，从而减少无效写入。然而，过细的粒度会带来额外的元数据索引开销（$\text{Metadata Overhead}$）与 $\text{CPU}$ 比对成本。因此，本实验旨在通过定量分析确定最佳的粒度维度。
-
-我们选取了六种具有代表性的边缘工作负载：空闲、$\text{7zip}$（压缩）、$\text{Redis}$（键值存储）、$\text{FIO}$（随机写）、$\text{Memcached}$（缓存）以及 $\text{MPlayer}$（媒体播放），在不同粒度设置下对快照脏数据进行差异化提取，并计算其压缩比率。
+在全页去重的基础上，为了进一步挖掘页内微小修改带来的压缩潜力，$\text{HPRO}$ 引入了细粒度提取技术。正如第 6 章所述，更细的提取粒度能够剥离页面中未发生变化的“干净”数据块，从而减少无效写入。然而，过细的粒度会带来额外的元数据索引开销与 $\text{CPU}$ 比对成本。因此，本实验旨在通过定量分析确定最佳的粒度维度，在不同粒度设置下对快照脏数据进行差异化提取，并计算其压缩比率。
 
 \begin{table}[htbp]
     \centering
@@ -194,20 +192,65 @@
 为了确保评估的客观性与全面性，我们将 $\text{HPRO}$ 的性能与以下三个具有代表性的系统进行了严格的横向对比：（1）\textbf{QEMU}：$\text{QEMU 6.2.0}$ 版本中基于软件写保护的原生预拷贝（Pre-copy）机制，作为通用基准；（2）\textbf{MLLS}：一种源自 $\text{MLLM}$ \cite{shi2022memory} 的优化机制，其特点是利用内存写入工作集感知（Working Set Awareness）来进行迁移决策；（3）\textbf{FLIC-DRAM}：基于 $\text{FLIC}$ \cite{zhong2016flic} 工作集识别方法进行优化的快照系统。通过这三组对比，我们将分别验证 $\text{HPRO}$ 在低开销追踪、热点识别准确性以及整体架构优化方面的优势。
 
 \subsubsection{虚拟机性能损耗}
+
 首先，我们重点评估 $\text{HPRO}$ 在执行快照过程中对虚拟机前台业务造成的性能损耗。这是边缘场景最为敏感的指标，因为过高的损耗会导致实时任务超时或 $\text{AI}$ 推理掉帧。实验在两种不同算力的平台上进行：在高性能的 $\text{Raspberry Pi 4B}$ 上运行了 $\text{SQLite}$（数据库）、$\text{7zip}$（高频内存修改）、$\text{OpenCV}$（图像处理）和 $\text{YOLO}$（AI 推理）负载；在资源更受限的 $\text{Raspberry Pi 3B+}$ 上运行了 $\text{SQLite}$、$\text{7zip}$、$\text{OpenCV}$ 和 $\text{MQTT}$（轻量级通信）负载。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/py/pl4b.pdf}
+    \caption{Raspberry Pi 4B 平台上虚拟机快照引入的性能损失}
+    \label{fig:pl4b}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/py/pl3b.pdf}
+    \caption{Raspberry Pi 3B+ 平台上虚拟机快照引入的性能损失}
+    \label{fig:pl3b}
+\end{figure}
 
 如图~\ref{fig:pl4b} 和图~\ref{fig:pl3b} 的量化数据所示，在 $\text{Raspberry Pi 4B}$ 平台上，相比于 $\text{QEMU}$、$\text{MLLS}$ 和 $\text{FLIC-DRAM}$，$\text{HPRO}$ 系统表现出显著的优越性，分别平均降低了 $\text{37.2\%}$、$\text{14.5\%}$ 和 $\text{24.2\%}$ 的虚拟机性能损耗（损耗计算公式为 \((x-\text{HPRO})/x\)）。在算力更弱的 $\text{Raspberry Pi 3B+}$ 上，这一优势进一步扩大，$\text{HPRO}$ 相比上述三个系统分别平均降低了 $\text{44.7\%}$、$\text{18.8\%}$ 和 $\text{34.2\%}$ 的性能损耗。
 
-特别值得深入分析的是在 $\text{7zip}$ 这种典型的写密集型负载下，$\text{HPRO}$ 对性能损耗的降低幅度高达 $\text{65.2\%}$。这一现象背后的核心原因在于底层追踪机制的本质差异：$\text{QEMU}$ 和 $\text{MLLS}$ 等传统机制依赖于页表写保护（Write Protection），高频的内存写入会触发海量的 $\text{EPT Violation}$ 异常，迫使 $\text{CPU}$ 频繁陷入内核态进行处理，严重抢占了业务进程的时间片。相反，$\text{HPRO}$ 利用硬件辅助脏位（Hardware Dirty Bits）技术替代了软件陷阱，实现了非侵入式的脏页追踪；配合基于 $\text{SPI}$ 的自适应流控机制，$\text{HPRO}$ 能够智能地避开业务负载高峰，避免在脏页生成最为剧烈的时刻进行无效的反复拷贝与总线争抢。这些结果有力证明了在资源受限且脏页生成频繁的边缘场景中，$\text{HPRO}$ 通过精确的热点识别与被动式追踪策略，成功将快照操作对前台计算任务的干扰降至最低。
+特别值得深入分析的是在 $\text{7zip}$ 这种典型的写密集型负载下，$\text{HPRO}$ 对性能损耗的降低幅度高达 $\text{65.2\%}$。这一现象背后的核心原因在于底层追踪机制的本质差异：$\text{QEMU}$ 和 $\text{MLLS}$ 等传统机制依赖于页表写保护（Write Protection），高频的内存写入会触发海量的 $\text{EPT Violation}$ 异常，迫使 $\text{CPU}$ 频繁陷入内核态进行处理，严重抢占了业务进程的时间片。相反，$\text{HPRO}$ 利用硬件辅助脏位技术替代了软件陷阱，实现了非侵入式的脏页追踪；配合基于 $\text{SPI}$ 的自适应流控机制，$\text{HPRO}$ 能够智能地避开业务负载高峰，避免在脏页生成最为剧烈的时刻进行无效的反复拷贝与总线争抢。这些结果有力证明了在资源受限且脏页生成频繁的边缘场景中，$\text{HPRO}$ 通过精确的热点识别与被动式追踪策略，成功将快照操作对前台计算任务的干扰降至最低。
 
 \subsubsection{虚拟机停机时间}
-接下来，我们评估决定服务可用性的关键指标——虚拟机停机时间（Downtime）。实验设置与负载配置详见前文“实验环境与配置”小节。如图~\ref{fig:dt4b} 和图~\ref{fig:dt3b} 所示，在 $\text{Raspberry Pi 4B}$ 平台上，相比于原生预拷贝（$\text{Pre-copy}$）机制和基于 $\text{FLIC}$ 算法的优化方案，$\text{HPRO}$ 的停机时间分别平均减少了 $\text{14.2\%}$ 和 $\text{12.7\%}$。这表明 $\text{HPRO}$ 的热点感知算法能够更准确地收敛剩余脏页集，从而缩短最后时刻的传输窗口。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/py/dt4b.pdf}
+    \caption{Raspberry Pi 4B 平台上的虚拟机快照停机时间}
+    \label{fig:dt4b}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/py/dt3b.pdf}
+    \caption{Raspberry Pi 3B+ 平台上的虚拟机快照停机时间}
+    \label{fig:dt3b}
+\end{figure}
+
+接下来，我们评估决定服务可用性的关键指标——虚拟机停机时间。实验设置与负载配置详见前文“实验环境与配置”小节。如图~\ref{fig:dt4b} 和图~\ref{fig:dt3b} 所示，在 $\text{Raspberry Pi 4B}$ 平台上，相比于原生预拷贝（$\text{Pre-copy}$）机制和基于 $\text{FLIC}$ 算法的优化方案，$\text{HPRO}$ 的停机时间分别平均减少了 $\text{14.2\%}$ 和 $\text{12.7\%}$。这表明 $\text{HPRO}$ 的热点感知算法能够更准确地收敛剩余脏页集，从而缩短最后时刻的传输窗口。
 
 数据对比中一个值得注意的细节是，与 $\text{MLLS}$ 系统相比，$\text{HPRO}$ 的停机时间平均微幅增加了 $\text{7.5\%}$。通过深入分析快照流程可以发现，这是设计哲学权衡下的合理结果：$\text{MLLS}$ 采用了极其激进的预拷贝策略，在在线阶段就尝试传输绝大部分工作集，导致其停机时仅需传输极少量页面。然而，这种策略在 $\text{Pre-copy}$ 阶段引入了过高的开销，且对工作负载类型高度敏感——一旦负载波动导致脏页率上升，其停机时间会发生剧烈抖动。相比之下，$\text{HPRO}$ 选择将“极热页”推迟至停机阶段集中处理，虽然停机时间略有增加，但换取了极高的确定性与稳定性。
 
 此外，硬件平台的差异进一步验证了 $\text{HPRO}$ 的鲁棒性。在 $\text{Raspberry Pi 3B+}$ 上，$\text{HPRO}$ 相比预拷贝和 $\text{FLIC-DRAM}$ 分别减少了 $\text{15.4\%}$ 和 $\text{10.7\%}$ 的停机时间。更为关键的是，在该平台上，$\text{HPRO}$ 与 $\text{MLLS}$ 的停机时间差距被大幅缩小，仅平均增加了 $\text{1.3\%}$。这种差异缩小的根本原因在于：当计算资源极其有限（如 $\text{3B+}$ 的单核性能较弱）时，$\text{MLLS}$ 复杂的在线迁移算法无法跟上脏页的产生速率，导致其激进策略失效，停机时间被迫延长。而 $\text{HPRO}$ 凭借轻量级的老化算法和写合并机制，即使在低端硬件上也能保持高效的收敛能力，证明了其在极端受限环境下的适应能力优于对比系统。
 
 \subsubsection{快照总耗时}
-最后，我们评估快照过程持续的总时长（Duration Time），该指标反映了快照任务占用系统 $\text{I/O}$ 和网络资源的“时间窗口”长度。实验结果如图~\ref{fig:du4b} 和图~\ref{fig:du3b} 所示，在 $\text{Raspberry Pi 4B}$ 平台上，$\text{HPRO}$ 展现出卓越的传输效率，相比 $\text{QEMU}$、$\text{MLLS}$ 和 $\text{FLIC-DRAM}$ 分别平均缩短了 $\text{26\%}$、$\text{7.5\%}$ 和 $\text{7.7\%}$ 的快照持续时间。
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/py/du4b.pdf}
+    \caption{Raspberry Pi 4B 平台上的虚拟机快照持续时间}
+    \label{fig:du4b}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/py/du3b.pdf}
+    \caption{Raspberry Pi 3B+ 平台上的虚拟机快照持续时间}
+    \label{fig:du3b}
+\end{figure}
+
+最后，我们评估快照过程持续的总时长，该指标反映了快照任务占用系统 $\text{I/O}$ 和网络资源的“时间窗口”长度。实验结果如图~\ref{fig:du4b} 和图~\ref{fig:du3b} 所示，在 $\text{Raspberry Pi 4B}$ 平台上，$\text{HPRO}$ 展现出卓越的传输效率，相比 $\text{QEMU}$、$\text{MLLS}$ 和 $\text{FLIC-DRAM}$ 分别平均缩短了 $\text{26\%}$、$\text{7.5\%}$ 和 $\text{7.7\%}$ 的快照持续时间。
 
 在硬件配置更低的 $\text{Raspberry Pi 3B+}$ 平台上，优化效果甚至更为显著，$\text{HPRO}$ 相比上述三个系统分别平均缩短了 $\text{28.8\%}$、$\text{6.9\%}$ 和 $\text{8.8\%}$ 的耗时。快照总耗时的大幅缩短，主要得益于 $\text{HPRO}$ 在执行层引入的多层级数据去重与细粒度提取技术，以及面向 $\text{Flash}$ 特性的写合并机制。这些技术有效减少了实际写入存储介质的物理数据量，缓解了 $\text{Flash}$ 的写入放大效应，从而在带宽有限的情况下实现了更高的数据吞吐率。这一系列数据充分证明了 $\text{HPRO}$ 架构具有良好的跨平台通用性，无论是在相对高性能的边缘网关还是极低功耗的嵌入式节点上，均能通过软硬协同的优化策略，显著提升系统整体的运行效率。
