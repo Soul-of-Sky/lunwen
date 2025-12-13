@@ -24,7 +24,7 @@ graph TB
             AAA[自适应老化算法<br>冷热页划分]:::guest
             SPI[系统压力指数 SPI<br>资源紧张度化]:::guest
             FSM{自适应状态机<br>模式切换指令}:::guest
-            DTE[基于热度的分级传输<br>基于SPI的快照策略]:::guest
+            DTE[基于热度的分级保存<br>基于SPI的快照策略]:::guest
             
             User_Space --> AAA --> SPI --> FSM --> DTE
             

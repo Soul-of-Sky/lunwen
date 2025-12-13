@@ -17,7 +17,7 @@ graph TB
     subgraph PreCopy_Path [预拷贝机制失效]
         direction TB
         Pre_Start(开启预拷贝):::mech
-        Write_Load(写密集型负载 <br> 脏页产生速率 > 传输速率):::conflict
+        Write_Load(写密集型负载 <br> 脏页产生速率 > 保存速率):::conflict
         
         Congestion{I/O 通道拥塞}:::conflict
         Non_Converge[迭代不收敛 <br> 强制退化为停止并拷贝]:::fail
@@ -42,7 +42,7 @@ graph TB
     end
 
     %% --- 跨层级连接：展示资源瓶颈 ---
-    Constraint_IO ==>|限制传输上限| Congestion
+    Constraint_IO ==>|限制保存速率上限| Congestion
     Constraint_CPU ==>|限制处理能力| Contention
 
     %% --- 视觉布局调整 ---

@@ -25,7 +25,7 @@ flowchart TB
         S_New_Map("S_new")
         Strategy_Hot["极热页面<br>停机阶段保存/写合并"]
         Strategy_Warm["温热页面<br>启用 COW 机制"]
-        Strategy_Cold["冷寂页面<br>后台低优先级传输"]
+        Strategy_Cold["冷寂页面<br>后台低优先级保存"]
   end
  subgraph s1[" "]
     direction TB
