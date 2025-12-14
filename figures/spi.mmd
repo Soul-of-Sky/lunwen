@@ -5,7 +5,7 @@ config:
 flowchart TB
  subgraph High["高压模式：最小化干扰"]
     direction TB
-        H_Action["抬高热度阈值<br>仅传极热页<br>暂停后台 I/O"]
+        H_Action["抬高热度阈值<br>仅保存极热页<br>暂停后台 I/O"]
   end
  subgraph Standard["标准模式：均衡调度"]
     direction TB
@@ -17,7 +17,7 @@ flowchart TB
   end
     Input(["SPI 实时监测"]) --> Decision{"迟滞比较决策"}
     Decision -- "SPI > 0.8" --> High
-    Decision -- "0.3 &lt; SPI &lt; 0.8" --> Standard
+    Decision -- "0.3 &lt;= SPI &lt;= 0.8" --> Standard
     Decision -- "SPI &lt; 0.3" --> Low
 
      H_Action:::highMode

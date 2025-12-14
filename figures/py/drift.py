@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+from matplotlib.ticker import FuncFormatter
 
 # --- 1. 样式设置 ---
 plt.rcParams['font.sans-serif'] = ['SimHei', 'SimSun', 'Arial Unicode MS']
@@ -83,21 +84,38 @@ def plot_organic_sparks_drift():
     cmap = plt.cm.get_cmap('OrRd')
     
     # interpolation='none' 是关键！这能保留像素的颗粒感，不让它模糊成一团
-    im = ax.imshow(data, cmap=cmap, aspect='auto', origin='lower', 
-                   extent=[0, 100, 0, 200], vmin=0.5, vmax=35, 
-                   interpolation='none') 
+    im = ax.imshow(
+        data,
+        cmap=cmap,
+        aspect='auto',
+        origin='lower',
+        extent=[0, 1, 0, 1],
+        vmin=0.5,
+        vmax=35,
+        interpolation='none'
+    )
+
 
     # --- 4. 细节调整 ---
-    ax.set_xlabel('执行时间 (归一化)', fontsize=16)
-    ax.set_ylabel('内存地址空间 (PFN)', fontsize=16)
+    ax.set_xlabel('归一化执行时间', fontsize=16)
+    ax.set_ylabel('归一化内存地址空间', fontsize=16)
     
+    # ax.set_xticks([0, 1])
+    # ax.set_yticks([0, 1])
+
+    ax.yaxis.set_major_formatter(
+        FuncFormatter(lambda y, _: '' if y == 0 else f'{y:g}')
+    )
+
     # 移除垂直网格线，让视觉更自然
     # ax.grid(False) 
 
     # Colorbar
     cbar = plt.colorbar(im, ax=ax)
-    cbar.set_label('写入强度', rotation=270, labelpad=20, fontsize=14)
+    cbar.set_label('写入频率', rotation=270, labelpad=20, fontsize=14)
     cbar.outline.set_linewidth(1)
+    cbar.set_ticks([im.norm.vmin, im.norm.vmax])
+    cbar.set_ticklabels(['低', '高'])
 
     plt.tight_layout()
 

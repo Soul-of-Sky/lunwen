@@ -5,9 +5,9 @@ config:
 flowchart TB
  subgraph LogicalMerge["阶段一：内存逻辑覆写"]
     direction LR
-        Index{"Hash索引查找"}
+        Index{"哈希索引查找"}
         Hit["极热页命中<br>检测到 P1 已存在"]
-        Overwrite["原地覆写 Update<br>V3 覆盖 V2 覆盖 V1"]
+        Overwrite["原地覆写更新<br>V3 覆盖 V2 覆盖 V1"]
         Discard("中间态 V1, V2<br>被过滤丢弃")
         Miss["新页分配<br>写入 P2"]
         Buffer["环形缓冲区<br>仅驻留最终态: P1_v3, P2"]

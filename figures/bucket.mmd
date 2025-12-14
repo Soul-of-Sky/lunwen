@@ -13,9 +13,9 @@ flowchart LR
     direction TB
         Request{"申请令牌"}
         Thread["后台快照线程<br>准备写入数据"]
-        Bucket{"令牌桶<br>Capacity"}
+        Bucket{"令牌桶"}
         IO_Action["执行 I/O 落盘<br>消耗对应令牌"]
-        Sleep["强制挂起 Sleep<br>让渡总线资源"]
+        Sleep["强制挂起<br>让渡总线资源"]
   end
     SPI --> Formula
     TokenGen -- 注入 --> Bucket
