@@ -1,37 +1,37 @@
+%%{init: { "theme": "", "flowchart": { "defaultRenderer": "elk" } } }%%
 graph TB
-    classDef guest fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000;
-    classDef kvm fill:#ffebee,stroke:#b71c1c,stroke-width:2px,color:#000;
-    classDef hw fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000;
+    %% --- 样式定义 ---
+    classDef guest fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000,font-size:18px;
+    classDef kvm fill:#ffebee,stroke:#b71c1c,stroke-width:2px,color:#000,font-size:18px;
+    classDef hw fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000,font-size:18px;
 
-    subgraph HPRO 系统架构
+    subgraph HPRO_System ["<div style='margin-bottom:30px; font-size:22px; font-weight:bold;'>HPRO 系统架构</div>"]
         direction TB
 
-        %% 垂直第一层: 内核监控层 (kvm color)
-        subgraph 内核监控层
+        %% 垂直第一层: 内核监控层
+        subgraph Layer1 ["<div style='margin-bottom:20px; font-size:20px; font-weight:bold;'>内核监控层</div>"]
             direction LR
             KVM_Host_OS[**宿主机内核**<br>状态感知]:::kvm
             LMM{轻量级内存监控<br>访问位追踪}:::kvm
             SHM[共享内存机制<br>实时热度位图]:::kvm
             
             KVM_Host_OS --> LMM --> SHM
-            
         end
 
-        %% 垂直第二层: 策略决策层 (guest color)
-        subgraph 策略决策层
+        %% 垂直第二层: 策略决策层
+        subgraph Layer2 ["<div style='min-width:800px; margin-bottom:20px; font-size:20px; font-weight:bold;'>策略决策层</div>"]
             direction LR
             User_Space[**用户空间**<br>控制与调度核心]:::guest
             AAA[自适应老化算法<br>冷热页划分]:::guest
             SPI[系统压力指数 SPI<br>资源紧张度化]:::guest
             FSM{自适应状态机<br>模式切换指令}:::guest
-            DTE[基于热度的分级保存<br>基于SPI的快照策略]:::guest
+            DTE[分级保存策略<br>基于SPI的快照]:::guest
             
             User_Space --> AAA --> SPI --> FSM --> DTE
-            
         end
 
-        %% 垂直第三层: 执行优化层 (hw color) - 仅保留Flash优化
-        subgraph 执行优化层
+        %% 垂直第三层: 执行优化层
+        subgraph Layer3 ["<div style='margin-bottom:20px; font-size:20px; font-weight:bold;'>执行优化层</div>"]
             direction LR
             Data_Path[**数据持久化**<br>I/O 执行与优化]:::hw
             WM[写合并与去重<br>存储介质优化]:::hw
@@ -40,8 +40,7 @@ graph TB
             Data_Path --> WM --> TBF
         end
 
-        %% 仅保留层级关系的垂直连接
-        内核监控层 --> 策略决策层
-        策略决策层 --> 执行优化层
-        
+        %% 层级间的垂直连接 (18px 连线可选文字)
+        Layer1 --> Layer2
+        Layer2 --> Layer3
     end

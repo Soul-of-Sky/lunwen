@@ -1,30 +1,29 @@
----
-config:
-  layout: elk
----
+%%{init: { "theme": "base", "flowchart": { "defaultRenderer": "elk" } } }%%
 flowchart LR
-    Start(("脏页产生")) --> Buffer["增量缓冲区<br>持续聚合"]
-    Buffer --> CheckCap{"规则一<br>容量超限?"}
-    CheckCap -- 是: 写入过快 --> Act_High["立即落盘"]
-    Act_High --> Adjust_High["策略趋向懒惰<br>批处理粒度翻倍"]
-    CheckCap -- 否 --> CheckTime{"规则二<br>时间超时?"}
-    CheckTime -- 是: 等待过久 --> Act_Low["强制落盘"]
-    Act_Low --> Adjust_Low["策略趋向实时<br>批处理粒度减半"]
-    CheckTime -- 否: 继续聚合 --> Buffer
+    %% --- 样式定义 (保留原色，锁定 22px 字号) ---
+    classDef process fill:#f5f5f5,stroke:#666,stroke-width:2px,color:#333,font-size:22px;
+    classDef decision fill:#fff2cc,stroke:#d6b656,stroke-width:2px,color:#333,font-size:22px;
+    classDef highLoad fill:#f8cecc,stroke:#b85450,stroke-width:2px,color:#333,font-size:22px;
+    classDef lowLoad fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:#333,font-size:22px;
+    classDef terminator fill:#e1d5e7,stroke:#9673a6,stroke-width:2px,color:#333,font-size:22px;
+
+    %% --- 流程逻辑 ---
+    Start(("脏页产生")):::terminator --> Buffer["增量缓冲区<br>持续聚合"]:::process
+    
+    Buffer --> CheckCap{"规则一<br>容量超限?"}:::decision
+    
+    CheckCap -- "<span style='font-size:22px;'>是: 写入过快</span>" --> Act_High["立即落盘"]:::highLoad
+    Act_High --> Adjust_High["策略趋向懒惰<br>批处理粒度翻倍"]:::highLoad
+    
+    CheckCap -- "<span style='font-size:22px;'>否</span>" --> CheckTime{"规则二<br>时间超时?"}:::decision
+    
+    CheckTime -- "<span style='font-size:22px;'>是: 等待过久</span>" --> Act_Low["强制落盘"]:::lowLoad
+    Act_Low --> Adjust_Low["策略趋向实时<br>批处理粒度减半"]:::lowLoad
+    
+    CheckTime -- "<span style='font-size:22px;'>否: 继续聚合</span>" --> Buffer
+    
     Adjust_High -.-> Buffer
     Adjust_Low -.-> Buffer
+    
+    %% 布局占位，保持平衡
     Act_High ~~~ Act_Low
-
-     Start:::terminator
-     Buffer:::process
-     CheckCap:::decision
-     Act_High:::highLoad
-     Adjust_High:::highLoad
-     CheckTime:::decision
-     Act_Low:::lowLoad
-     Adjust_Low:::lowLoad
-    classDef process fill:#f5f5f5,stroke:#666,stroke-width:2px,color:#333
-    classDef decision fill:#fff2cc,stroke:#d6b656,stroke-width:2px,color:#333
-    classDef highLoad fill:#f8cecc,stroke:#b85450,stroke-width:2px,color:#333
-    classDef lowLoad fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:#333
-    classDef terminator fill:#e1d5e7,stroke:#9673a6,stroke-width:2px,color:#333

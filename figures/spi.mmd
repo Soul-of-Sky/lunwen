@@ -1,34 +1,38 @@
----
-config:
-  layout: elk
----
+%%{init: { "theme": "", "flowchart": { "defaultRenderer": "elk" } } }%%
 flowchart TB
- subgraph High["高压模式：最小化干扰"]
-    direction TB
-        H_Action["抬高热度阈值<br>仅保存极热页<br>暂停后台 I/O"]
-  end
- subgraph Standard["标准模式：均衡调度"]
-    direction TB
-        S_Action["令牌桶流控<br>默认热度阈值<br>平稳保存冷页"]
-  end
- subgraph Low["低压模式：激进拷贝"]
-    direction TB
-        L_Action["降低热度阈值<br>解除带宽限制<br>全速刷写"]
-  end
-    Input(["SPI 实时监测"]) --> Decision{"迟滞比较决策"}
-    Decision -- "SPI > 0.8" --> High
-    Decision -- "0.3 &lt;= SPI &lt;= 0.8" --> Standard
-    Decision -- "SPI &lt; 0.3" --> Low
+    %% --- 样式定义 (锁定字号，保留原色) ---
+    classDef highMode fill:#f8cecc,stroke:#b85450,stroke-width:2px,color:#333,font-size:18px;
+    classDef stdMode fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:#333,font-size:18px;
+    classDef lowMode fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:#333,font-size:18px;
+    classDef logicNode fill:#f5f5f5,stroke:#666,stroke-width:2px,color:#333,font-size:18px;
 
-     H_Action:::highMode
-     S_Action:::stdMode
-     L_Action:::lowMode
-     Input:::logicNode
-     Decision:::logicNode
-    classDef highMode fill:#f8cecc,stroke:#b85450,stroke-width:2px,color:#333
-    classDef stdMode fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:#333
-    classDef lowMode fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:#333
-    classDef logicNode fill:#f5f5f5,stroke:#666,stroke-width:2px,stroke-dasharray: 5 5,color:#333
-    classDef invisible fill:none,stroke:none
-    style Input stroke-width:2px,stroke-dasharray: 0
-    style Decision stroke-width:2px,stroke-dasharray: 0
+    %% --- 决策头部 ---
+    Input(["<span style='font-weight:bold'>SPI 实时监测</span>"]):::logicNode
+    Decision{"迟滞比较决策"}:::logicNode
+
+    Input --> Decision
+
+    %% --- 三种模式并排 ---
+    subgraph High ["<div style='margin-bottom:20px; font-size:20px; font-weight:bold;'>高压模式：最小化干扰</div>"]
+        direction TB
+        H_Action["抬高热度阈值<br>仅保存极热页<br>暂停后台 I/O"]:::highMode
+    end
+
+    subgraph Standard ["<div style='margin-bottom:20px; font-size:22px; font-weight:bold;'>标准模式：均衡调度</div>"]
+        direction TB
+        S_Action["令牌桶流控<br>默认热度阈值<br>平稳保存冷页"]:::stdMode
+    end
+
+    subgraph Low ["<div style='margin-bottom:20px; font-size:22px; font-weight:bold;'>低压模式：激进拷贝</div>"]
+        direction TB
+        L_Action["降低热度阈值<br>解除带宽限制<br>全速刷写"]:::lowMode
+    end
+
+    %% --- 决策连线 (连线文字锁定 18px) ---
+    Decision -- "<span style='font-size:18px;'>SPI > 0.8</span>" --> High
+    Decision -- "<span style='font-size:18px;'>0.3 <= SPI <= 0.8</span>" --> Standard
+    Decision -- "<span style='font-size:18px;'>SPI < 0.3</span>" --> Low
+
+    %% 特殊样式微调：覆盖原本的虚线定义以匹配你要求的实线加粗效果
+    style Input stroke-dasharray: 0
+    style Decision stroke-dasharray: 0

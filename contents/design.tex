@@ -26,7 +26,7 @@ $$R_{node} = \{ C_{total}, M_{total}, B_{io}, E_{bat} \}$$
 
 当系统执行内存状态快照任务 $T_{snap}$ 时，其资源消耗和时延必须严格满足上层业务所规定的服务质量（Quality of Service, QoS）要求。这构成了本研究系统设计的三大硬性约束：
 
-\textbf{（1）计算资源竞争约束：低开销（Low Overhead）特性}
+\textbf{（1）计算资源竞争约束：低开销特性}
 
 快照执行过程中涉及的内存页扫描、数据压缩、数据校验等步骤本质上是计算密集型任务。为了防止快照后台进程对核心业务进程 $P_{workload}$（如实时控制环路或 AI 实时推理）造成“资源饥饿”，必须对快照任务的 CPU 占用率 $C_{snap}$ 进行严格的上界限制。数学表达为：
 $$C_{snap}(t) + \sum P_{workload}(t) \le C_{total}, \quad \forall t$$

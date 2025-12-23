@@ -1,56 +1,53 @@
 flowchart TB
- subgraph s1["第一部分：问题定义与分析"]
-        C{"软硬不匹配冲突"}
-        A["边缘计算资源受限"]
-        B["应用负载多样性"]
-        D["挑战1: 机制选型困境"]
-        E["挑战2: 追踪开销高"]
-        F["挑战3: Flash存储约束"]
-  end
- subgraph s2["第二部分：HPRO系统架构设计"]
+    %% 样式定义保持不变...
+    classDef step fill:#b3e5fc,stroke:#01579b,stroke-width:2px,font-size:18px
+    classDef decision fill:#ffcdd2,stroke:#c62828,stroke-width:2px,font-size:18px
+    classDef state fill:#e8f5e9,stroke:#388e3c,stroke-width:2px,font-size:18px
+    classDef update fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,font-size:18px
+    classDef process fill:#e1bee7,stroke:#8e24aa,stroke-width:2px,font-size:18px 
+
+ subgraph s1["<div style='min-width: 300px; margin-bottom: 20px;'>第一部分：问题定义与分析</div>"]
+        C{"软硬不匹配冲突"}:::decision
+        A["边缘计算资源受限"]:::step
+        B["应用负载多样性"]:::step
+        D["挑战1: 机制选型困境"]:::decision
+        E["挑战2: 追踪开销高"]:::decision
+        F["挑战3: Flash存储约束"]:::decision
+        A --> C
+        B --> C
+        C --> D & E & F
+ end
+
+ subgraph s2["<div style='min-width: 300px; margin-bottom: 20px;'>第二部分：HPRO系统架构设计</div>"]
     direction TB
-        G["HPRO总体架构"]
-        H["内核监控层"]
-        I["策略决策层"]
-        J["执行优化层"]
-  end
- subgraph s3["第三部分：关键技术攻关"]
-    direction TB
-        K["软硬协同热点感知"]
-        L["基于热点感知和SPI的<br>自适应快照策略"]
-        M["面向Flash的存储优化"]
-  end
- subgraph s4["第四部分：验证"]
+        G["HPRO总体架构"]:::state
+        H["内核监控层"]:::state
+        I["策略决策层"]:::state
+        J["执行优化层"]:::state
+        G --> H & I & J
+ end
+
+ subgraph s3["<div style='min-width: 300px; margin-bottom: 20px;'>第三部分：关键技术攻关</div>"]
     direction LR
-        N["系统原型实现与评估"]
-  end
-    A --> C
-    B --> C
-    C --> D & E & F
-    G --> H & I & J
+    %% 将原本独立的K,L,M串联起来，并增加细节
+        K_sub["热点数据识别"]:::update --> L_sub["自适应快照策略"]:::update
+        L_sub --> M_sub1["基于SPI优化"]:::update
+        M_sub1 --> M_sub2["Flash I/O优化"]:::update
+ end
+
+ subgraph s4["<div style='min-width: 300px; margin-bottom: 20px;'>第四部分：实现与验证</div>"]
+    direction LR
+    %% 将原本一个节点拆解为流程
+        N1["构建原型系统"]:::process --> N2["部署多样化工作负载"]:::process
+        N2 --> N3["性能与开销评估"]:::process
+        N3 --> N4["对比分析与结论"]:::process
+ end
+
     s1 --> s2
     s2 --> s3
     s3 --> s4
-
-     C:::decision
-     A:::step
-     B:::step
-     D:::decision
-     E:::decision
-     F:::decision
-     G:::state
-     H:::state
-     I:::state
-     J:::state
-     K:::update
-     L:::update
-     M:::update
-     N:::step
-    classDef step fill:#b3e5fc,stroke:#01579b,stroke-width:2px
-    classDef decision fill:#ffcdd2,stroke:#c62828,stroke-width:2px
-    classDef state fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
-    classDef update fill:#fff9c4,stroke:#fbc02d,stroke-width:2px
-    style s1 fill:#f5f5f5, stroke:#aaa
-    style s2 fill:#f5f5f5, stroke:#aaa
-    style s3 fill:#f5f5f5, stroke:#aaa
-    style s4 fill:#f5f5f5, stroke:#aaa
+     
+    style s1 fill:#f5f5f5, stroke:#aaa, font-size:20px
+    style s2 fill:#f5f5f5, stroke:#aaa, font-size:20px
+    style s3 fill:#f5f5f5, stroke:#aaa, font-size:20px
+    style s4 fill:#f5f5f5, stroke:#aaa, font-size:20px

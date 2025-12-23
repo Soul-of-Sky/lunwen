@@ -5,11 +5,13 @@ graph TD
     classDef kernelLayer fill:#ffebee,stroke:#b71c1c,stroke-width:2px,color:#000;
     classDef hwLayer fill:#eeeeee,stroke:#616161,stroke-width:2px,color:#000;
     classDef guestLayer fill:#fff3e0,stroke:#e65100,stroke-width:2px,stroke-dasharray: 5 5,color:#000;
-    classDef component fill:#ffffff,stroke:#333,stroke-width:1px,color:#000;
+    
+    %% 组件节点字号设为 18px
+    classDef component fill:#ffffff,stroke:#333,stroke-width:1.5px,color:#000,font-size:18px;
 
-    subgraph UserSpace [用户态层]
-        subgraph QEMU [QEMU进程]
-            subgraph QEMU_Modules [关键功能模块]
+    subgraph UserSpace ["<div style='min-width:450px; margin-bottom:25px; font-size:22px; font-weight:bold;'>用户态层</div>"]
+        subgraph QEMU ["<div style='margin-bottom:15px; font-size:20px;'>QEMU 进程</div>"]
+            subgraph QEMU_Modules ["<div style='margin-bottom:10px; font-size:18px;'>关键功能模块</div>"]
                 Net[虚拟网络]:::component
                 Block[虚拟块设备]:::component
                 PCI[PCI总线模型]:::component
@@ -20,9 +22,9 @@ graph TD
         end
     end
 
-    subgraph KernelSpace [内核态层]
-        subgraph KVM [KVM内核模块]
-            subgraph KVM_Core [核心功能]
+    subgraph KernelSpace ["<div style='min-width:450px; margin-bottom:25px; font-size:22px; font-weight:bold;'>内核态层</div>"]
+        subgraph KVM ["<div style='margin-bottom:15px; font-size:20px;'>KVM 内核模块</div>"]
+            subgraph KVM_Core ["<div style='margin-bottom:10px; font-size:18px;'>核心功能</div>"]
                 CPUVirt[CPU虚拟化]:::component
                 MMU[内存地址翻译]:::component
                 Trap[异常陷入处理]:::component
@@ -30,27 +32,26 @@ graph TD
         end
     end
 
-    subgraph Hardware [物理硬件层]
+    subgraph Hardware ["<div style='min-width:450px; margin-bottom:25px; font-size:22px; font-weight:bold;'>物理硬件层</div>"]
         PHY_CPU[物理CPU]:::component
         PHY_Mem[物理内存]:::component
     end
 
-    subgraph Guest [客户机]
+    subgraph Guest ["<div style='min-width:250px; margin-bottom:25px; font-size:22px; font-weight:bold;'>客户机</div>"]
         GuestOS[客户机操作系统]:::component
     end
 
-    %% 交互连线
-    GuestOS -- 指令直接执行 --> PHY_CPU
-    GuestOS -- IO操作与陷入 --> Trap
+    %% 交互连线：文字设为 18px
+    GuestOS -- "<span style='font-size:18px;'>指令直接执行</span>" --> PHY_CPU
+    GuestOS -- "<span style='font-size:18px;'>I/O 操作与陷入</span>" --> Trap
     
-    Trap -- 转发IO请求 --> QEMU_Modules
-    QEMU_Modules -- 模拟完成返回 --> Trap
+    Trap -- "<span style='font-size:18px;'>转发 I/O 请求</span>" --> QEMU_Modules
+    QEMU_Modules -- "<span style='font-size:18px;'>模拟完成返回</span>" --> Trap
     
-    KVM_Core -. 支持硬件辅助虚拟化 .-> PHY_CPU
+    KVM_Core -. "<span style='font-size:18px;'>硬件辅助虚拟化</span>" .-> PHY_CPU
     
     %% 应用样式
     class UserSpace userLayer;
     class KernelSpace kernelLayer;
     class Hardware hwLayer;
     class Guest guestLayer;
-    class QEMU,KVM component;
