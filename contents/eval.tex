@@ -51,13 +51,13 @@
 
 \subsection{对比基准}
 
-在宏观基准测试性能中，本研究选取以下三种快照机制作为对比基准：  
+在宏观基准测试性能中，本研究选取了涵盖工业界标准与近年来学术界前沿成果的三种快照机制作为对比基准。这些基准代表了当前虚拟化状态保存领域的最高水平和主流技术路径：  
 
 \begin{enumerate}
 
-\item \textbf{QEMU}：基于 QEMU\cite{bellard2005qemu} 提供的原生预拷贝机制。
-\item \textbf{MLLS}：基于 MLLM\cite{shi2022memory}提出的内存写入工作集感知迁移方法的快照机制。
-\item \textbf{FLIC-DRAM}：基于 FLIC\cite{zhong2016flic} 提出的工作集识别方法进行优化的快照机制。
+\item \textbf{QEMU}：基于 QEMU\cite{bellard2005qemu} 提供的原生预拷贝机制。作为目前工业界应用最广泛的开源虚拟化解决方案，QEMU 的原生机制代表了通用虚拟化环境下的性能标准基准线。
+\item \textbf{MLLS}：基于 MLLM\cite{shi2022memory}提出的内存写入工作集感知迁移方法的快照机制。该机制通过对工作集的精准感知来优化数据传输路径，是目前学术界针对边缘计算内存压力优化的代表性技术路线。
+\item \textbf{FLIC-DRAM}：基于 FLIC\cite{zhong2016flic} 提出的工作集识别方法进行优化的快照机制。该基准侧重于利用工作集识别技术缓解边缘存储的 I/O 拥塞，是当前研究边缘 Flash 存储寿命与性能权衡的核心前沿方法。
 
 \end{enumerate}
 
